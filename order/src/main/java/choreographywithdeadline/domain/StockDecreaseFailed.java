@@ -1,8 +1,6 @@
 package choreographywithdeadline.domain;
 
-import choreographywithdeadline.domain.*;
 import choreographywithdeadline.infra.AbstractEvent;
-import java.util.*;
 import lombok.*;
 
 @Data

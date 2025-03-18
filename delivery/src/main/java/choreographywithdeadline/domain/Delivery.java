@@ -1,11 +1,6 @@
 package choreographywithdeadline.domain;
 
 import choreographywithdeadline.DeliveryApplication;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import javax.persistence.*;
 import lombok.Data;
 
@@ -41,11 +36,19 @@ public class Delivery {
     public static void startDelivery(OrderCreated orderCreated) {
         //implement business logic here:
 
-        /** Example 1:  new item 
         Delivery delivery = new Delivery();
+        delivery.setOrderId(String.valueOf(orderCreated.getId()));
+        delivery.setCustomerId(orderCreated.getCustomerId());
+        delivery.setProductId(orderCreated.getProductId());
+        delivery.setProductName(orderCreated.getProductName());
+        delivery.setQty(orderCreated.getQty());
+        delivery.setAddress(orderCreated.getAddress());
+        delivery.setStatus("Delivery Started");
+
         repository().save(delivery);
 
-        */
+        DeliveryStarted deliveryStarted = new DeliveryStarted();
+        deliveryStarted.publishAfterCommit();
 
         /** Example 2:  finding and process
         
@@ -55,8 +58,7 @@ public class Delivery {
             delivery // do something
             repository().save(delivery);
 
-
-         });
+        });
         */
 
     }

@@ -1,11 +1,6 @@
 package choreographywithdeadline.domain;
 
 import choreographywithdeadline.OrderApplication;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import javax.persistence.*;
 import lombok.Data;
 
@@ -33,6 +28,17 @@ public class Order {
 
     private String status;
 
+    @PrePersist // 저장하기 전에 하는 것. 보통 정해진 값을 넣음
+    public void onPrePersist() {
+        setStatus("Pending");
+    }
+
+    @PostPersist // event 만들어짐
+    public void onPostPersist() {
+        OrderCreated orderCreated = new OrderCreated(this);
+        orderCreated.publishAfterCommit();
+    }
+
     public static OrderRepository repository() {
         OrderRepository orderRepository = OrderApplication.applicationContext.getBean(
             OrderRepository.class
@@ -42,50 +48,31 @@ public class Order {
 
     //<<< Clean Arch / Port Method
     public static void approve(StockDecreased stockDecreased) {
-        //implement business logic here:
 
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
-
-        */
-
-        /** Example 2:  finding and process
-        
-
-        repository().findById(stockDecreased.get???()).ifPresent(order->{
+        repository().findById(Long.valueOf(stockDecreased.getOrderId()))
+        .ifPresent(order->{
             
-            order // do something
+            order.setStatus("Approved");
             repository().save(order);
 
-
-         });
-        */
-
+            OrderPlaced orderPlaced = new OrderPlaced(order);
+            orderPlaced.publishAfterCommit();
+        });
     }
 
     //>>> Clean Arch / Port Method
     //<<< Clean Arch / Port Method
     public static void reject(StockDecreaseFailed stockDecreaseFailed) {
-        //implement business logic here:
 
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
-
-        */
-
-        /** Example 2:  finding and process
         
-
-        repository().findById(stockDecreaseFailed.get???()).ifPresent(order->{
+        // repository().findById(stockDecreaseFailed.)
+        // .ifPresent(order->{
             
-            order // do something
-            repository().save(order);
+        //     order // do something
+        //     repository().save(order);
 
 
-         });
-        */
+        // });
 
     }
 
@@ -117,25 +104,16 @@ public class Order {
     //>>> Clean Arch / Port Method
     //<<< Clean Arch / Port Method
     public static void reject(DeadlineReached deadlineReached) {
-        //implement business logic here:
 
-        /** Example 1:  new item 
-        Order order = new Order();
-        repository().save(order);
-
-        */
-
-        /** Example 2:  finding and process
-        
-
-        repository().findById(deadlineReached.get???()).ifPresent(order->{
+        repository().findById(deadlineReached.getOrderId())
+        .ifPresent(order->{
             
-            order // do something
+            order.setStatus("Rejected");
             repository().save(order);
 
+            new OrderRejected(order).publishAfterCommit();
 
-         });
-        */
+        });
 
     }
     //>>> Clean Arch / Port Method

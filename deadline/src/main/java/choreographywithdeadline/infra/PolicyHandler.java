@@ -2,18 +2,16 @@ package choreographywithdeadline.infra;
 
 import choreographywithdeadline.config.kafka.KafkaProcessor;
 import choreographywithdeadline.domain.*;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.naming.NameParser;
-import javax.naming.NameParser;
 import javax.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 //<<< Clean Arch / Inbound Adaptor
 @Service
+@EnableScheduling
 @Transactional
 public class PolicyHandler {
 
@@ -34,6 +32,11 @@ public class PolicyHandler {
 
         // Sample Logic //
         Deadline.schedule(event);
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void checkDeadline() {
+        Deadline.sendDeadlineEvents();
     }
 }
 //>>> Clean Arch / Inbound Adaptor

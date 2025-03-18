@@ -1,11 +1,6 @@
 package choreographywithdeadline.domain;
 
 import choreographywithdeadline.ProductApplication;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import javax.persistence.*;
 import lombok.Data;
 
@@ -34,25 +29,17 @@ public class Inventory {
 
     //<<< Clean Arch / Port Method
     public static void stockDecrease(DeliveryStarted deliveryStarted) {
-        //implement business logic here:
 
-        /** Example 1:  new item 
-        Inventory inventory = new Inventory();
-        repository().save(inventory);
-
-        */
-
-        /** Example 2:  finding and process
+        repository().findById(Long.valueOf(deliveryStarted.getProductId()))
+            .ifPresent(inventory->{
         
-
-        repository().findById(deliveryStarted.get???()).ifPresent(inventory->{
-            
-            inventory // do something
+            inventory.setStock(inventory.getStock() - deliveryStarted.getQty());
             repository().save(inventory);
 
-
-         });
-        */
+            StockDecreased stockDecreased = new StockDecreased(inventory);
+            stockDecreased.setOrderId(deliveryStarted.getOrderId());
+            stockDecreased.publishAfterCommit();
+        });
 
     }
     //>>> Clean Arch / Port Method
